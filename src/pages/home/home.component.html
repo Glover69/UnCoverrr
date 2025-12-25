@@ -1,0 +1,58 @@
+
+
+<section class="main-container relative w-full min-h-screen flex items-center justify-center">
+
+  <div class="center-container w-sm h-fit flex flex-col items-center gap-5">
+    <div class="header-container flex flex-col items-center gap-2">
+      <img class="w-32" src="/images/album-cover-2.png">
+      <span class="font-bold text-4xl">UnCoverrr</span>
+      <span class="font-normal text-base">The Daily Music Challenge.</span>
+    </div>
+
+    <div class="body-container w-full p-5 rounded-xl shadow-xs border flex flex-col gap-4 border-gray-200">
+      <app-input-field-base inputType="base" label="Enter Nickname" placeholder="e.g. RhythmRider" ></app-input-field-base>
+      <app-button size="lg" hierarchy="primary" type="button" icon="leading" text="Enter Arena!"></app-button>
+    </div>
+
+    <div class="flex flex-col items-center gap-3">
+      <div class="timer-container flex flex-col items-center gap-2">
+        <div class="timer-display flex items-center gap-8">
+          <div class="time-unit flex flex-col items-center justify-center">
+            <div #hoursEl class="time-value font-bold text-2xl">{{ hours }}</div>
+            <div class="time-label opacity-60">Hours</div>
+          </div>
+          <div class="time-unit flex flex-col items-center justify-center">
+            <div #minutesEl class="time-value font-bold text-2xl">{{ minutes }}</div>
+            <div class="time-label opacity-60">Minutes</div>
+          </div>
+          <div class="time-unit flex flex-col items-center justify-center">
+            <div #secondsEl class="time-value font-bold text-2xl">{{ seconds }}</div>
+            <div class="time-label opacity-60">Seconds</div>
+          </div>
+        </div>
+        <div class="progress-bar w-full h-2.5 rounded-sm bg-gray-100 overflow-hidden">
+          <div #progressEl class="progress-fill"></div>
+        </div>
+      </div>
+      <span class="font-normal text-sm opacity-35">until next reset.</span>
+    </div>
+  </div>
+
+  <div class="absolute bottom-6 left-8 flex items-center gap-1">
+    <span class="font-medium tracking-tighter text-sm opacity-65">Made using 🎧 and 💻 by Daniel Glover</span>
+  </div>
+
+  <div class="absolute bottom-6 right-8 flex items-center gap-1">
+    <span (click)="isDialogOpen = true" class="font-medium tracking-tighter text-sm hover:underline hover:cursor-pointer opacity-65">How to Play?</span>
+  </div>
+
+  <div class="absolute top-6 right-8 flex items-center gap-1">
+    <img class="w-6" src="/icons/spotify.svg">
+    <span class="font-medium tracking-tighter">Powered by Spotify.</span>
+  </div>
+
+</section>
+
+<app-dialog class="flex items-center justify-center" [(open)]="isDialogOpen">
+  <span class="font-semibold text-xl text-center">How to Play</span>
+</app-dialog>

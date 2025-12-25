@@ -1,0 +1,64 @@
+<div class="input-group w-full flex flex-col items-start gap-2">
+  @if (label) {
+    <span class="text-sm text-gray-900 dark:text-gray-900">{{ label }}</span>
+  }
+
+
+  @if (inputType === 'base') {
+    <div [ariaDisabled]="disabled" [ngClass]="[isDestructive ? 'border border-error-300' : 'border border-gray-200', disabled ? 'opacity-60' : 'bg-gray-bg']" class="inline-flex w-full items-stretch overflow-hidden  shadow-xs rounded-lg">
+     <!-- Leading addon: mini select -->
+    @if (baseInputType === 'leading-dropdown') {
+      <div class="relative flex items-center gap-2 px-3.5 py-2.5 shrink-0 border-r border-gray-200">
+        <select
+          class="appearance-none bg-transparent text-gray-900 text-base md:text-sm focus:outline-none"
+        >
+          @for (opt of leadingOptions; track $index) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+        <i class="ph ph-caret-down text-gray-900"></i>
+      </div>
+    }
+
+    @if (baseInputType === 'leading-text') {
+        <div class="relative text-gray-700 flex items-center gap-2 px-3.5 py-2.5 shrink-0 border-r border-gray-200">
+            {{leadingTextValue}}
+        </div>
+    }
+
+    @if (baseInputType === 'default' || iconName) {
+      <div class="px-3.5 py-2.5 shrink-0 pr-0 text-gray-800 flex items-center justify-center">
+        <span class="text-lg ph" [ngClass]="[   iconStyle && iconStyle !== 'regular' ? 'ph-' + iconStyle : 'ph',   iconName ? 'ph-' + iconName : '' ]"></span>
+      </div>
+    }
+
+
+    <input [value]="value" (input)="onInput($event)" (blur)="onTouched()" [disabled]="disabled" [placeholder]="placeholder" class="placeholder:text-gray-700 flex-1 min-w-0  px-3.5 py-2.5 text-base transition-[color,box-shadow] focus:outline-none disabled:pointer-events-none disabled:cursor-not-allowed md:text-sm"/>
+
+    <!-- <div [ngClass]="[isDestructive ? 'text-error-300' : 'text-gray-800']" class="px-3.5 py-2.5 shrink-0 pl-0 flex items-center justify-center">
+      <span class="text-lg ph ph-question-mark"></span>
+    </div> -->
+
+    <!-- Trailing addon: mini select -->
+    @if (baseInputType === 'trailing-dropdown') {
+      <div class="relative flex items-center gap-2 px-3.5 py-2.5 shrink-0 border-l border-gray-200">
+        <select
+          class="appearance-none bg-transparent text-gray-900 text-base md:text-sm focus:outline-none"
+        >
+          @for (opt of trailingOptions; track $index) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+        <i class="ph ph-caret-down text-gray-900"></i>
+      </div>
+    }
+  </div>
+  }@else if (inputType === 'textarea') {
+    <textarea [disabled]="disabled" [ngClass]="[isDestructive ? 'border-error-300' : 'border-gray-200']" [placeholder]="placeholder" class="placeholder:text-gray-800 resize-none shadow-xs px-3.5 py-2.5 shrink-0 rounded-lg border transition-[color,box-shadow] focus:outline-none disabled:pointer-events-none disabled:bg-gray-50 disabled:cursor-not-allowed text-base md:text-sm" name="" id="" cols="30" rows="10"></textarea>
+  }
+
+
+  @if (hintText) {
+    <span [ngClass]="[isDestructive ? 'text-error-500' : 'text-gray-900 dark:text-gray-900']" class="text-sm">{{ hintText }}</span>
+  }
+</div>

@@ -1,0 +1,31 @@
+<button class="w-full hover:cursor-pointer disabled:cursor-not-allowed"
+    [attr.type]="type"
+    [attr.name]="name || null"
+    [attr.value]="value || null" 
+    (click)="onClick($event)"
+    [disabled]="disabled || loading"
+    [ngClass]="[
+        'btn',
+        'btn-' + (size || 'md'),
+        'btn-' + (hierarchy || 'primary')
+    ]"
+    [class.btn-loading]="loading"
+    [class.btn-destructive]="isDestructive"
+    [class.flex-row-reverse]="icon === 'trailing'"
+>
+  @if (loading) {
+  <i class="ph ph-circle-notch animate-spin"></i>
+  } @if (!loading && icon !== 'false') {
+  <i
+    class=""
+    [ngClass]="[
+      iconStyle && iconStyle !== 'regular' ? 'ph-' + iconStyle : 'ph',
+      iconName ? 'ph-' + iconName : ''
+    ]"
+  ></i>
+  }
+
+  @if(icon !== 'only'){
+    <span class="flex shrink-0">{{ text }}</span>
+  }
+</button>
