@@ -1,10 +1,11 @@
-import {Component, ElementRef, OnInit, signal, ViewChild} from '@angular/core';
+import {Component, ElementRef, inject, OnInit, signal, ViewChild} from '@angular/core';
 import {InputFieldBaseComponent} from '../../components/input-field-base/input-field-base.component';
 import {ButtonComponent} from '../../components/button/button.component';
 import {DialogComponent} from '../../components/dialog/dialog.component';
 import gsap from 'gsap';
 import {FormsModule} from '@angular/forms';
-import {NgClass} from '@angular/common';
+import {NgClass, NgOptimizedImage} from '@angular/common';
+import {Router, RouterModule} from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -13,7 +14,8 @@ import {NgClass} from '@angular/common';
     ButtonComponent,
     DialogComponent,
     FormsModule,
-    NgClass
+    NgClass,
+    NgOptimizedImage
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
@@ -36,9 +38,14 @@ export class HomeComponent implements OnInit{
 
   isDialogOpen: boolean = false;
   DialogComponent: any;
+  private router = inject(Router);
+  screenState: 'loading' | 'home' = 'home';
 
   ngOnInit(){
-    this.animateHomeScreen()
+    setTimeout(() => {
+      this.animateHomeScreen(-50, 50, -50, false)
+    }, 200)
+
     this.updateCountdown();
     this.intervalId = setInterval(() => this.updateCountdown(), 1000);
   }
@@ -108,6 +115,38 @@ export class HomeComponent implements OnInit{
     return num.toString().padStart(2, '0');
   }
 
+  enterArena(){
+    if (this.screenState == "loading"){
+      console.log("Hi")
+      setTimeout(() => {
+        gsap.to('.vinyl-img', {
+          rotation: 360,
+          duration: 2,
+          repeat: -1,
+          ease: "none"
+        })
+
+        gsap.to('.load-header', {
+          x: 0,
+          opacity: 1,
+          duration: 1,
+          ease: "power2.inOut"
+        })
+
+        gsap.fromTo('.tips-container', {
+          y: 30
+        }, {
+          y: 0,
+          opacity: 1,
+          delay: 0.5,
+          duration: 0.75,
+          ease: "power2.inOut"
+        })
+      }, 1000)
+    }
+
+
+  }
 
   // How to Play dialog
 
@@ -193,37 +232,77 @@ export class HomeComponent implements OnInit{
 
   // Animate home screen
 
-  animateHomeScreen(){
-    gsap.fromTo('.header-container', {
-      y: -50,
-      opacity: 0,
-    }, {
-      y: 0,
-      opacity: 1,
-      duration: 1,
-      ease: 'power2.inOut'
-    })
+  animateHomeScreen(first: number, second: number, third: number, alreadyAnimated: boolean){
+    if (!alreadyAnimated){
+      gsap.fromTo('.header-container', {
+        y: first,
+        opacity: 0,
+      }, {
+        y: 0,
+        opacity: 1,
+        duration: 1,
+        ease: 'power2.inOut'
+      })
 
-    gsap.fromTo('.timer-container', {
-      y: 50,
-      opacity: 0,
-    }, {
-      y: 0,
-      opacity: 1,
-      duration: 1,
-      ease: 'power2.inOut'
-    })
+      gsap.fromTo('.timer-container', {
+        y: second,
+        opacity: 0,
+      }, {
+        y: 0,
+        opacity: 1,
+        duration: 1,
+        ease: 'power2.inOut'
+      })
 
-    gsap.fromTo('.body-container', {
-      x: -50,
-      opacity: 0,
-    }, {
-      x: 0,
-      opacity: 1,
-      duration: 1.25,
-      delay: 0.75,
-      ease: 'power2.inOut'
-    })
+      gsap.fromTo('.body-container', {
+        x: third,
+        opacity: 0,
+      }, {
+        x: 0,
+        opacity: 1,
+        duration: 1.25,
+        delay: 0.75,
+        ease: 'power2.inOut'
+      })
+    }else{
+
+      // Reverse to leave screen
+      gsap.to('.header-container', {
+        y: first,
+        opacity: 0,
+        duration: 1,
+        ease: 'power2.inOut'
+      })
+
+      gsap.to('.timer-container', {
+        y: second,
+        opacity: 0,
+        duration: 1,
+        ease: 'power2.inOut'
+      })
+
+      gsap.to('.body-container', {
+        x: third,
+        opacity: 0,
+        duration: 1.25,
+        delay: 0.75,
+        ease: 'power2.inOut',
+        onComplete: () => {
+          // Change screen state to loading after last animation ends
+          setTimeout(() => {
+            this.screenState = "loading";
+            this.enterArena()
+          }, 100)
+        }
+      })
+
+      gsap.to('.absolute', {
+        y: third,
+        opacity: 0,
+        duration: 1,
+        ease: 'power2.inOut'
+      })
+    }
 
   }
 
