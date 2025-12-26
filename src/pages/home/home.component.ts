@@ -138,9 +138,9 @@ export class HomeComponent implements OnInit{
       description: "Earn points for each correct answer!",
       tips: [
         "You must be quick to answer as well. The faster you answer, the more points you get for a question.",
-        "Build streaks for bonus points as you go",
+        "Build streaks for bonus points as you go!",
         "Track your progress and score on the global leaderboard as you play through the questions",
-        "Can you get the highest for today 👀? I guess we'll find out"
+        "Can you get the highest for today? I guess we'll find out."
       ],
       image: "assets/screenshots/step1-album.png"
     }
@@ -163,7 +163,29 @@ export class HomeComponent implements OnInit{
 
   nextStep(){
     if (this.currentStep() != this.steps.length - 1){
+
       this.currentStep.update(val => val + 1);
+
+      // console.log("Before: " + this.currentStep())
+      // gsap.to('.step-title', {
+      //   x: -100,
+      //   opacity: 0,
+      //   duration: 0.5,
+      //   ease: 'power2.out',
+      //   onComplete: () => {
+      //     setTimeout(() => {
+      //       this.currentStep.update(val => val + 1);
+      //     }, 200)
+      //
+      //     console.log("After: " + this.currentStep())
+      //     gsap.to('.step-title', {
+      //       x: 0,
+      //       opacity: 1,
+      //       duration: 0.5,
+      //       ease: 'power2.in'
+      //     })
+      //   }
+      // })
     }
   }
 
