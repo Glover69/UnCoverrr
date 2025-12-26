@@ -3,13 +3,17 @@ import {InputFieldBaseComponent} from '../../components/input-field-base/input-f
 import {ButtonComponent} from '../../components/button/button.component';
 import {DialogComponent} from '../../components/dialog/dialog.component';
 import gsap from 'gsap';
+import {FormsModule} from '@angular/forms';
+import {NgClass} from '@angular/common';
 
 @Component({
   selector: 'app-home',
   imports: [
     InputFieldBaseComponent,
     ButtonComponent,
-    DialogComponent
+    DialogComponent,
+    FormsModule,
+    NgClass
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
@@ -19,6 +23,7 @@ export class HomeComponent implements OnInit{
   @ViewChild('minutesEl', { static: false }) minutesEl!: ElementRef;
   @ViewChild('secondsEl', { static: false }) secondsEl!: ElementRef;
   @ViewChild('progressEl', { static: false }) progressEl!: ElementRef;
+  nickname: string = '';
 
   hours: string = '00';
   minutes: string = '00';
@@ -30,6 +35,7 @@ export class HomeComponent implements OnInit{
   private previousSeconds: number = 0;
 
   isDialogOpen: boolean = false;
+  DialogComponent: any;
 
   ngOnInit(){
     this.updateCountdown();
@@ -100,4 +106,65 @@ export class HomeComponent implements OnInit{
   private padZero(num: number): string {
     return num.toString().padStart(2, '0');
   }
+
+
+  // How to Play dialog
+
+  currentStep = signal(0);
+
+  steps = [
+    {
+      title: "📀 Step 1: Study the Album Cover",
+      description: "You'll see an album cover without the name.",
+      tips: [
+        "Pay attention to the artwork and optional hints like genre and release year",
+        "Some albums might have the artist's signature style",
+        "These clues will help you \n" +
+        "guess the artist!"
+      ],
+      image: "assets/screenshots/step1-album.png"
+    },
+    {
+      title: "🎯 Step 2: Choose Your Answer",
+      description: "Pick the correct artist from four (4) options.",
+      tips: [
+        "You have one chance per question, so choose carefully!",
+        "Not sure? You can skip and move to the next question"
+      ],
+      image: "assets/screenshots/step1-album.png"
+    },
+    {
+      title: "🏆 Step 3: Build Your Score",
+      description: "Earn points for each correct answer!",
+      tips: [
+        "You must be quick to answer as well. The faster you answer, the more points you get for a question.",
+        "Build streaks for bonus points as you go",
+        "Track your progress and score on the global leaderboard as you play through the questions",
+        "Can you get the highest for today 👀? I guess we'll find out"
+      ],
+      image: "assets/screenshots/step1-album.png"
+    }
+  ]
+
+  closeDialog(){
+    this.isDialogOpen = false
+
+    setTimeout(() => {
+      // Reset state for how to play dialog
+      this.currentStep.set(0);
+    }, 200)
+  }
+
+  previousStep(){
+    if (this.currentStep() != 0){
+      this.currentStep.update(val => val - 1);
+    }
+  }
+
+  nextStep(){
+    if (this.currentStep() != this.steps.length - 1){
+      this.currentStep.update(val => val + 1);
+    }
+  }
+
 }

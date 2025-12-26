@@ -9,10 +9,10 @@
       <span class="font-normal text-base">The Daily Music Challenge.</span>
     </div>
 
-    <div class="body-container w-full p-5 rounded-xl shadow-xs border flex flex-col gap-4 border-gray-200">
-      <app-input-field-base inputType="base" label="Enter Nickname" placeholder="e.g. RhythmRider" ></app-input-field-base>
-      <app-button size="lg" hierarchy="primary" type="button" icon="leading" text="Enter Arena!"></app-button>
-    </div>
+    <form #heroForm="ngForm" class="body-container w-full p-5 rounded-xl shadow-xs border flex flex-col gap-4 border-gray-200">
+      <app-input-field-base required [(ngModel)]="nickname" [name]="'nickname'"  inputType="base" label="Enter Nickname" placeholder="e.g. RhythmRider" ></app-input-field-base>
+      <app-button [disabled]="heroForm.invalid" size="lg" hierarchy="primary" type="button" icon="leading" text="Enter Arena!"></app-button>
+    </form>
 
     <div class="flex flex-col items-center gap-3">
       <div class="timer-container flex flex-col items-center gap-2">
@@ -55,4 +55,38 @@
 
 <app-dialog class="flex items-center justify-center" [(open)]="isDialogOpen">
   <span class="font-semibold text-xl text-center">How to Play</span>
+
+
+  <div class="carousel-main-container w-full h-full flex flex-col items-start gap-4">
+
+    <!-- Image -->
+    <div class="img-placeholder w-full h-48 rounded-sm bg-gray-200">
+
+    </div>
+
+    <!-- Step Label -->
+    <span class="font-semibold text-base">{{steps[currentStep()].title}}</span>
+
+    <ul class="flex flex-col items-start gap-1">
+      @for (item of steps[currentStep()].tips; track item) {
+        <li class="opacity-60">‣ {{item}}</li>
+      }
+    </ul>
+
+    <!-- Indicators/Progress dots -->
+    <div class="flex items-center gap-2 mt-4">
+      @for (circle of steps; track circle) {
+        <div [ngClass]="circle == steps[currentStep()] ? 'bg-brand-400' : 'bg-gray-200'" class="circle w-2 h-2 rounded-full bg-black"></div>
+      }
+    </div>
+
+    <div class="flex items-center gap-2">
+      @if (currentStep() >= 1) {
+        <app-button [disabled]="currentStep() == 0" (clicked)="previousStep()" size="sm" icon="false" hierarchy="secondary" type="button" text="Previous"></app-button>
+      }
+      <app-button (clicked)="currentStep() == this.steps.length - 1 ? closeDialog() : nextStep()" size="sm" icon="false" hierarchy="primary" type="button" [text]="currentStep() == this.steps.length - 1 ? `Let's go!` : 'Next'"></app-button>
+    </div>
+
+
+  </div>
 </app-dialog>

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {booleanAttribute, Component, EventEmitter, Input, Output} from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 @Component({
@@ -17,16 +17,16 @@ export class ButtonComponent {
   @Input() text: string | null = ''
   @Input() iconName: string | null = ''
   @Input() iconStyle?: 'thin' | 'light' | 'regular' | 'bold' | 'fill' | 'duotone' | null = 'regular'
-  @Input() disabled = false;
+  @Input({transform: booleanAttribute}) disabled = false;
   @Input() loading = false;
   @Input() name?: string;
   @Input() value?: string;
   @Input() isInGroup?: boolean = false
-  // @Input() routerLink?: string | any[]; 
+  // @Input() routerLink?: string | any[];
 
 
 
-  @Output() clicked = new EventEmitter<MouseEvent>(); 
+  @Output() clicked = new EventEmitter<MouseEvent>();
 
   onClick(event: MouseEvent) {
     if (!this.disabled && !this.loading) this.clicked.emit(event);

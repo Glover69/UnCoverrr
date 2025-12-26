@@ -64,7 +64,6 @@ export class DialogComponent {
   //   }
   // }
 
-  // ...existing code...
 animateDialog(state: string) {
   const element = this.DialogRef?.nativeElement;
   const backdrop = element?.previousElementSibling; // backdrop element
@@ -72,7 +71,6 @@ animateDialog(state: string) {
 
   switch (state) {
     case 'open':
-      // shadcn style: fade + scale up from center
       gsap.set(element, { scale: 0.95, opacity: 0 });
       gsap.set(backdrop, { opacity: 0 });
 
@@ -92,7 +90,6 @@ animateDialog(state: string) {
       break;
 
     case 'close':
-      // shadcn style: fade + scale down to center
       gsap.to(backdrop, {
         opacity: 0,
         duration: 0.15,
@@ -147,5 +144,4 @@ animateDialog(state: string) {
     }
     this.onTouched();
   }
-
 }
