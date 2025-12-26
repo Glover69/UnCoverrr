@@ -1,12 +1,20 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, Input } from '@angular/core';
+import {Component, forwardRef, input, Input} from '@angular/core';
+import {NG_VALUE_ACCESSOR} from '@angular/forms';
 
 @Component({
   selector: 'app-input-field-base',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './input-field-base.component.html',
-  styleUrl: './input-field-base.component.css'
+  styleUrl: './input-field-base.component.css',
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => InputFieldBaseComponent),
+      multi: true,
+    },
+  ]
 })
 export class InputFieldBaseComponent {
   @Input() inputType: 'base' | 'textarea' = 'base'
