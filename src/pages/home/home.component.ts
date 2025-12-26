@@ -38,6 +38,7 @@ export class HomeComponent implements OnInit{
   DialogComponent: any;
 
   ngOnInit(){
+    this.animateHomeScreen()
     this.updateCountdown();
     this.intervalId = setInterval(() => this.updateCountdown(), 1000);
   }
@@ -187,6 +188,43 @@ export class HomeComponent implements OnInit{
       //   }
       // })
     }
+  }
+
+
+  // Animate home screen
+
+  animateHomeScreen(){
+    gsap.fromTo('.header-container', {
+      y: -50,
+      opacity: 0,
+    }, {
+      y: 0,
+      opacity: 1,
+      duration: 1,
+      ease: 'power2.inOut'
+    })
+
+    gsap.fromTo('.timer-container', {
+      y: 50,
+      opacity: 0,
+    }, {
+      y: 0,
+      opacity: 1,
+      duration: 1,
+      ease: 'power2.inOut'
+    })
+
+    gsap.fromTo('.body-container', {
+      x: -50,
+      opacity: 0,
+    }, {
+      x: 0,
+      opacity: 1,
+      duration: 1.25,
+      delay: 0.75,
+      ease: 'power2.inOut'
+    })
+
   }
 
 }
