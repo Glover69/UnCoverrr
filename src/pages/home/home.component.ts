@@ -1,10 +1,13 @@
-import {Component, ElementRef, OnInit, signal, ViewChild} from '@angular/core';
+import {Component, ElementRef, inject, OnInit, signal, ViewChild} from '@angular/core';
 import {InputFieldBaseComponent} from '../../components/input-field-base/input-field-base.component';
 import {ButtonComponent} from '../../components/button/button.component';
 import {DialogComponent} from '../../components/dialog/dialog.component';
 import gsap from 'gsap';
 import {FormsModule} from '@angular/forms';
-import {NgClass} from '@angular/common';
+import {NgClass, NgOptimizedImage} from '@angular/common';
+import {Router, RouterModule} from '@angular/router';
+import tipsData from '../../data/did-you-know.json';
+import {getRandomIntInclusive} from '../../utils/utils';
 
 @Component({
   selector: 'app-home',
@@ -13,7 +16,8 @@ import {NgClass} from '@angular/common';
     ButtonComponent,
     DialogComponent,
     FormsModule,
-    NgClass
+    NgClass,
+    NgOptimizedImage
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
@@ -36,10 +40,18 @@ export class HomeComponent implements OnInit{
 
   isDialogOpen: boolean = false;
   DialogComponent: any;
+  private router = inject(Router);
+  screenState: 'loading' | 'home' = 'home';
+  tips: any[] = tipsData;
 
   ngOnInit(){
+    setTimeout(() => {
+      this.animateHomeScreen(-50, 50, -50, false)
+    }, 200)
+
     this.updateCountdown();
     this.intervalId = setInterval(() => this.updateCountdown(), 1000);
+    // console.log(this.tips)
   }
 
   private updateCountdown() {
@@ -107,6 +119,51 @@ export class HomeComponent implements OnInit{
     return num.toString().padStart(2, '0');
   }
 
+  enterArena(){
+    if (this.screenState == "loading"){
+      console.log("Hi")
+      setTimeout(() => {
+        gsap.to('.vinyl-img', {
+          rotation: 360,
+          duration: 2,
+          repeat: -1,
+          ease: "none"
+        })
+
+        gsap.to('.load-header', {
+          x: 0,
+          opacity: 1,
+          duration: 1,
+          ease: "power2.inOut"
+        })
+
+        gsap.fromTo('.tips-container', {
+          y: 30
+        }, {
+          y: 0,
+          opacity: 1,
+          delay: 0.5,
+          duration: 0.75,
+          ease: "power2.inOut",
+        })
+
+        gsap.to('.tips-sentence', {
+          opacity: 0.6,
+          duration: 0.5,
+          ease: "power2.inOut",
+          onComplete: () => {
+            this.randomizeTips()
+
+            setInterval(() => {
+              this.randomizeTips()
+            }, 9000)
+          }
+        })
+      }, 1000)
+    }
+
+
+  }
 
   // How to Play dialog
 
@@ -138,9 +195,9 @@ export class HomeComponent implements OnInit{
       description: "Earn points for each correct answer!",
       tips: [
         "You must be quick to answer as well. The faster you answer, the more points you get for a question.",
-        "Build streaks for bonus points as you go",
+        "Build streaks for bonus points as you go!",
         "Track your progress and score on the global leaderboard as you play through the questions",
-        "Can you get the highest for today 👀? I guess we'll find out"
+        "Can you get the highest for today? I guess we'll find out."
       ],
       image: "assets/screenshots/step1-album.png"
     }
@@ -163,8 +220,167 @@ export class HomeComponent implements OnInit{
 
   nextStep(){
     if (this.currentStep() != this.steps.length - 1){
+
       this.currentStep.update(val => val + 1);
+
+      // console.log("Before: " + this.currentStep())
+      // gsap.to('.step-title', {
+      //   x: -100,
+      //   opacity: 0,
+      //   duration: 0.5,
+      //   ease: 'power2.out',
+      //   onComplete: () => {
+      //     setTimeout(() => {
+      //       this.currentStep.update(val => val + 1);
+      //     }, 200)
+      //
+      //     console.log("After: " + this.currentStep())
+      //     gsap.to('.step-title', {
+      //       x: 0,
+      //       opacity: 1,
+      //       duration: 0.5,
+      //       ease: 'power2.in'
+      //     })
+      //   }
+      // })
     }
   }
 
+
+  // Animate home screen
+
+  animateHomeScreen(first: number, second: number, third: number, alreadyAnimated: boolean){
+    if (!alreadyAnimated){
+      gsap.fromTo('.header-container', {
+        y: first,
+        opacity: 0,
+      }, {
+        y: 0,
+        opacity: 1,
+        duration: 1,
+        ease: 'power2.inOut'
+      })
+
+      gsap.fromTo('.timer-container', {
+        y: second,
+        opacity: 0,
+      }, {
+        y: 0,
+        opacity: 1,
+        duration: 1,
+        ease: 'power2.inOut'
+      })
+
+      gsap.fromTo('.body-container', {
+        x: third,
+        opacity: 0,
+      }, {
+        x: 0,
+        opacity: 1,
+        duration: 1.25,
+        delay: 0.75,
+        ease: 'power2.inOut'
+      })
+    }else{
+
+      // Reverse to leave screen
+      gsap.to('.header-container', {
+        y: first,
+        opacity: 0,
+        duration: 1,
+        ease: 'power2.inOut'
+      })
+
+      gsap.to('.timer-container', {
+        y: second,
+        opacity: 0,
+        duration: 1,
+        ease: 'power2.inOut'
+      })
+
+      gsap.to('.body-container', {
+        x: third,
+        opacity: 0,
+        duration: 1.25,
+        delay: 0.75,
+        ease: 'power2.inOut',
+        onComplete: () => {
+          // Change screen state to loading after last animation ends
+          setTimeout(() => {
+            this.screenState = "loading";
+            this.enterArena()
+          }, 100)
+        }
+      })
+
+      gsap.to('.absolute', {
+        y: third,
+        opacity: 0,
+        duration: 1,
+        ease: 'power2.inOut'
+      })
+    }
+
+  }
+
+  currentTip: { artist: string; fact: string; } | undefined;
+  // Array to hold the tips that have been shown already
+  alreadyShowedIndex: number[] = []
+
+  randomizeTips(){
+      if (this.alreadyShowedIndex.length != this.tips.length) {
+
+        if (this.currentTip == undefined) {
+          // Get a random number b/n 0 and the length of the tips data array
+          let randomNo = getRandomIntInclusive(0, tipsData.length - 1);
+
+          while (this.alreadyShowedIndex.find(n => n == randomNo)) {
+            randomNo = getRandomIntInclusive(0, tipsData.length - 1)
+          }
+
+          this.alreadyShowedIndex.push(randomNo);
+
+          this.currentTip = tipsData[randomNo];
+
+          this.fadeInSentence()
+        } else {
+          gsap.to('.tips-sentence', {
+            opacity: 0,
+            ease: "power2.inOut",
+            duration: 0.5,
+            onComplete: () => {
+              // Get a random number b/n 0 and the length of the tips data array
+              let randomNo = getRandomIntInclusive(0, tipsData.length - 1);
+
+              while (this.alreadyShowedIndex.find(n => n == randomNo)) {
+                randomNo = getRandomIntInclusive(0, tipsData.length - 1)
+              }
+
+              this.alreadyShowedIndex.push(randomNo);
+
+              this.currentTip = tipsData[randomNo];
+
+              setTimeout(() => {
+                this.fadeInSentence()
+              }, 500)
+            }
+          })
+        }
+
+      } else {
+        this.alreadyShowedIndex = [];
+        this.randomizeTips()
+      }
+  }
+
+
+
+  fadeInSentence(){
+    gsap.to('.tips-sentence', {
+      opacity: 0.6,
+      delay: 0.05,
+      duration: 0.5,
+      ease: "power2.inOut",
+    })
+  }
 }
