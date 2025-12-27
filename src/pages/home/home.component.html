@@ -6,18 +6,18 @@
     <!-- Screen to show when user hasn't advanced to arena -->
     @case ('home'){
       <div class="center-container w-xs lg:w-sm h-fit flex flex-col items-center gap-5">
-        <div class="header-container flex flex-col items-center gap-2">
+        <div class="header-container opacity-0 flex flex-col items-center gap-2">
           <img class="w-32" ngSrc="/images/album-cover-2.png" height="1024" width="1024">
           <span class="font-bold text-4xl">UnCoverrr</span>
           <span class="font-normal text-base">The Daily Music Challenge.</span>
         </div>
 
-        <form #heroForm="ngForm" class="body-container w-full p-5 rounded-xl shadow-xs border flex flex-col gap-4 border-gray-200">
+        <form #heroForm="ngForm" class="body-container opacity-0 w-full p-5 rounded-xl shadow-xs border flex flex-col gap-4 border-gray-200">
           <app-input-field-base required [(ngModel)]="nickname" [name]="'nickname'"  inputType="base" label="Enter Nickname" placeholder="e.g. RhythmRider" ></app-input-field-base>
           <app-button (clicked)="animateHomeScreen(-50, 50, -50, true)" [disabled]="heroForm.invalid" size="lg" hierarchy="primary" type="button" icon="leading" text="💪🏾 Enter Arena!"></app-button>
         </form>
 
-        <div class="timer-container flex flex-col items-center gap-3">
+        <div class="timer-container opacity-0 flex flex-col items-center gap-3">
           <div class=" flex flex-col items-center gap-2">
             <div class="timer-display flex items-center gap-8">
               <div class="time-unit flex flex-col items-center justify-center">
@@ -63,9 +63,9 @@
         <span class="font-semibold text-xl">Loading Arena...</span>
       </div>
 
-      <div class="flex opacity-0 absolute bottom-24 tips-container flex-col max-w-lg items-center">
+      <div class="flex opacity-0 absolute bottom-24 tips-container flex-col max-w-lg gap-3 items-center">
         <span class="font-bold text-lg">💡 Did You Know?</span>
-        <span class="font-regular text-sm text-center opacity-60">Wizkid's "Made In Lagos" album took over  3 years to complete and features artists from 5 different countries!</span>
+        <span class="font-regular tips-sentence text-sm text-center opacity-0">{{currentTip?.fact}}</span>
       </div>
     </div>
     }

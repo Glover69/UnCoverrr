@@ -6,6 +6,8 @@ import gsap from 'gsap';
 import {FormsModule} from '@angular/forms';
 import {NgClass, NgOptimizedImage} from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
+import tipsData from '../../data/did-you-know.json';
+import {getRandomIntInclusive} from '../../utils/utils';
 
 @Component({
   selector: 'app-home',
@@ -40,6 +42,7 @@ export class HomeComponent implements OnInit{
   DialogComponent: any;
   private router = inject(Router);
   screenState: 'loading' | 'home' = 'home';
+  tips: any[] = tipsData;
 
   ngOnInit(){
     setTimeout(() => {
@@ -48,6 +51,7 @@ export class HomeComponent implements OnInit{
 
     this.updateCountdown();
     this.intervalId = setInterval(() => this.updateCountdown(), 1000);
+    // console.log(this.tips)
   }
 
   private updateCountdown() {
@@ -140,7 +144,20 @@ export class HomeComponent implements OnInit{
           opacity: 1,
           delay: 0.5,
           duration: 0.75,
-          ease: "power2.inOut"
+          ease: "power2.inOut",
+        })
+
+        gsap.to('.tips-sentence', {
+          opacity: 0.6,
+          duration: 0.5,
+          ease: "power2.inOut",
+          onComplete: () => {
+            this.randomizeTips()
+
+            setInterval(() => {
+              this.randomizeTips()
+            }, 9000)
+          }
         })
       }, 1000)
     }
@@ -306,4 +323,64 @@ export class HomeComponent implements OnInit{
 
   }
 
+  currentTip: { artist: string; fact: string; } | undefined;
+  // Array to hold the tips that have been shown already
+  alreadyShowedIndex: number[] = []
+
+  randomizeTips(){
+      if (this.alreadyShowedIndex.length != this.tips.length) {
+
+        if (this.currentTip == undefined) {
+          // Get a random number b/n 0 and the length of the tips data array
+          let randomNo = getRandomIntInclusive(0, tipsData.length - 1);
+
+          while (this.alreadyShowedIndex.find(n => n == randomNo)) {
+            randomNo = getRandomIntInclusive(0, tipsData.length - 1)
+          }
+
+          this.alreadyShowedIndex.push(randomNo);
+
+          this.currentTip = tipsData[randomNo];
+
+          this.fadeInSentence()
+        } else {
+          gsap.to('.tips-sentence', {
+            opacity: 0,
+            ease: "power2.inOut",
+            duration: 0.5,
+            onComplete: () => {
+              // Get a random number b/n 0 and the length of the tips data array
+              let randomNo = getRandomIntInclusive(0, tipsData.length - 1);
+
+              while (this.alreadyShowedIndex.find(n => n == randomNo)) {
+                randomNo = getRandomIntInclusive(0, tipsData.length - 1)
+              }
+
+              this.alreadyShowedIndex.push(randomNo);
+
+              this.currentTip = tipsData[randomNo];
+
+              setTimeout(() => {
+                this.fadeInSentence()
+              }, 500)
+            }
+          })
+        }
+
+      } else {
+        this.alreadyShowedIndex = [];
+        this.randomizeTips()
+      }
+  }
+
+
+
+  fadeInSentence(){
+    gsap.to('.tips-sentence', {
+      opacity: 0.6,
+      delay: 0.05,
+      duration: 0.5,
+      ease: "power2.inOut",
+    })
+  }
 }
