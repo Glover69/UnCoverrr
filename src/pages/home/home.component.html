@@ -2,7 +2,7 @@
 
 <section class="main-container relative w-full min-h-screen flex items-center justify-center">
 
-  @switch (screenState){
+  @switch (screenState()){
     <!-- Screen to show when user hasn't advanced to arena -->
     @case ('home'){
       <div class="center-container w-xs lg:w-sm h-fit flex flex-col items-center gap-5">
@@ -63,9 +63,9 @@
         <span class="font-semibold text-xl">Loading Arena...</span>
       </div>
 
-      <div class="flex opacity-0 absolute bottom-24 tips-container flex-col max-w-lg gap-3 items-center">
+      <div class="flex opacity-0 absolute bottom-24 tips-container flex-col max-w-xs md:max-w-lg gap-3 items-center">
         <span class="font-bold text-lg">💡 Did You Know?</span>
-        <span class="font-regular tips-sentence text-sm text-center opacity-0">{{currentTip?.fact}}</span>
+        <span class="font-regular tips-sentence text-xs md:text-sm text-center opacity-0">{{currentTip()?.fact}}</span>
       </div>
     </div>
     }
