@@ -61,6 +61,16 @@ export class AudioService {
     }
   }
 
+  stopSound(soundName: string){
+    if (this.isMuted) return;
+
+    const sound = this.soundEffects[soundName];
+    if (sound) {
+      sound.pause()
+      sound.currentTime = 0;
+    }
+  }
+
   stopBackgroundMusic() {
     if (this.backgroundMusic) {
       this.backgroundMusic.pause();
