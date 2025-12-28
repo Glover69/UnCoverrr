@@ -46,10 +46,10 @@
         </div>
 
       <div class="options-group grid grid-cols-2 grid-rows-2 items-center gap-3 w-full lg:px-24">
-        <div class="single-option cursor-pointer w-full p-6 text-center rounded-lg bg-[#E32542] text-white font-bold text-lg">{{currentQuestion()!.options[0]}}</div>
-        <div class="single-option cursor-pointer w-full p-6 text-center rounded-lg bg-[#1D6DD0] text-white font-bold text-lg">{{currentQuestion()!.options[1]}}</div>
-        <div class="single-option cursor-pointer w-full p-6 text-center rounded-lg bg-[#DAA117] text-white font-bold text-lg">{{currentQuestion()!.options[2]}}</div>
-        <div class="single-option cursor-pointer w-full p-6 text-center rounded-lg bg-[#32931B] text-white font-bold text-lg">{{currentQuestion()!.options[3]}}</div>
+        <div (click)="chooseAnswer(currentQuestion()!.options[0])" class="single-option cursor-pointer w-full p-6 text-center rounded-lg bg-[#E32542] text-white font-bold text-lg">{{currentQuestion()!.options[0]}}</div>
+        <div (click)="chooseAnswer(currentQuestion()!.options[1])" class="single-option cursor-pointer w-full p-6 text-center rounded-lg bg-[#1D6DD0] text-white font-bold text-lg">{{currentQuestion()!.options[1]}}</div>
+        <div (click)="chooseAnswer(currentQuestion()!.options[2])" class="single-option cursor-pointer w-full p-6 text-center rounded-lg bg-[#DAA117] text-white font-bold text-lg">{{currentQuestion()!.options[2]}}</div>
+        <div (click)="chooseAnswer(currentQuestion()!.options[3])" class="single-option cursor-pointer w-full p-6 text-center rounded-lg bg-[#32931B] text-white font-bold text-lg">{{currentQuestion()!.options[3]}}</div>
       </div>
 
       <app-button size="sm" hierarchy="primary" type="button" icon="false" text="Next" (clicked)="nextQuestion()"></app-button>

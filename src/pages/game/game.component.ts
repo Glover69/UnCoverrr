@@ -88,4 +88,16 @@ export class GameComponent implements OnInit{
   nextQuestion(){
     this.currentQuestionIndex.update(n => n + 1);
   }
+
+  chooseAnswer(option: string){
+    this.audioService.playSound('click');
+
+    if (option === this.currentQuestion()?.correctAnswer){
+      this.audioService.playSound('correct');
+    }else{
+      this.audioService.playSound('wrong');
+    }
+
+    this.nextQuestion();
+  }
 }

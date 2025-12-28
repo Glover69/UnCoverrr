@@ -25,7 +25,7 @@ export class AudioService {
 
     // Sound effects
     this.soundEffects['correct'] = new Audio('audio/correct.mp3');
-    this.soundEffects['wrong'] = new Audio('audio/wrong.mp3');
+    this.soundEffects['wrong'] = new Audio('audio/wrong-2.wav');
     this.soundEffects['click'] = new Audio('audio/click.mp3');
     this.soundEffects['countdown'] = new Audio('audio/countdown-in-game.mp3');
     this.soundEffects['countdown-to-start'] = new Audio('audio/countdown-to-game.mp3');
