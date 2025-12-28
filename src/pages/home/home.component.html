@@ -2,12 +2,12 @@
 
 <section class="main-container relative w-full min-h-screen flex items-center justify-center">
 
-  @switch (screenState){
+  @switch (screenState()){
     <!-- Screen to show when user hasn't advanced to arena -->
     @case ('home'){
       <div class="center-container w-xs lg:w-sm h-fit flex flex-col items-center gap-5">
         <div class="header-container opacity-0 flex flex-col items-center gap-2">
-          <img class="w-32" ngSrc="/images/album-cover-2.png" height="1024" width="1024">
+          <img class="w-32" priority ngSrc="/images/album-cover-2.png" height="1024" width="1024">
           <span class="font-bold text-4xl">UnCoverrr</span>
           <span class="font-normal text-base">The Daily Music Challenge.</span>
         </div>
@@ -53,6 +53,10 @@
         <img class="w-6" ngSrc="/icons/spotify.svg" height="256" width="256">
         <span class="font-medium tracking-tighter">Powered by Spotify.</span>
       </div>
+
+      <div class="absolute top-6 left-8 flex items-center gap-1">
+        <span (click)="openSettings()" class="font-medium text-sm hover:underline hover:cursor-pointer tracking-tighter">⚙️ Settings</span>
+      </div>
     }
 
     <!-- Loading screen before game starts -->
@@ -61,11 +65,26 @@
       <div class="load-header opacity-0 flex flex-col items-center">
         <img priority class="w-32 vinyl-img" ngSrc="/images/vinyl.png" height="1024" width="1024">
         <span class="font-semibold text-xl">Loading Arena...</span>
+
+        @switch (gameDataService.isQuestionsLoaded()){
+          @case (false){
+            <span class="font-regular text-base opacity-60">Retrieving and shuffling questions</span>
+          }
+          @case (true){
+            <span class="font-regular text-base opacity-60">Finishing up</span>
+          }
+        }
+
+        @if (isRetrying()) {
+          <span class="font-regular text-base opacity-60">
+            Retrying ({{ currentRetry() }}/{{ maxRetries() }})
+          </span>
+        }
       </div>
 
-      <div class="flex opacity-0 absolute bottom-24 tips-container flex-col max-w-lg gap-3 items-center">
+      <div class="flex opacity-0 absolute bottom-24 tips-container flex-col max-w-xs md:max-w-lg gap-3 items-center">
         <span class="font-bold text-lg">💡 Did You Know?</span>
-        <span class="font-regular tips-sentence text-sm text-center opacity-0">{{currentTip?.fact}}</span>
+        <span class="font-regular tips-sentence text-xs md:text-sm text-center opacity-0">{{currentTip()?.fact}}</span>
       </div>
     </div>
     }
@@ -105,9 +124,66 @@
       @if (currentStep() >= 1) {
         <app-button [disabled]="currentStep() == 0" (clicked)="previousStep()" size="sm" icon="false" hierarchy="secondary" type="button" text="Previous"></app-button>
       }
-      <app-button (clicked)="currentStep() == this.steps.length - 1 ? closeDialog() : nextStep()" size="sm" icon="false" hierarchy="primary" type="button" [text]="currentStep() == this.steps.length - 1 ? `Let's go!` : 'Next'"></app-button>
+      <app-button (clicked)="currentStep() == this.steps.length - 1 ? closeSettings() : nextStep()" size="sm" icon="false" hierarchy="primary" type="button" [text]="currentStep() == this.steps.length - 1 ? `Let's go!` : 'Next'"></app-button>
     </div>
 
+
+  </div>
+</app-dialog>
+
+
+<!-- Settings dialog -->
+<app-dialog class="flex items-center justify-center" [(open)]="isSettingsDialogOpen">
+  <span class="font-semibold text-xl text-center">⚙️ Settings</span>
+
+
+  <div class="carousel-main-container w-full h-full flex flex-col items-start gap-4">
+
+    <div class="audio-section flex flex-col items-start gap-2">
+      <span class="font-semibold text-lg">🔊 Audio</span>
+
+      <!-- Mute Toggle -->
+      <div class="setting-item flex items-center">
+        <label class="flex items-center gap-2">
+          <input
+            type="checkbox"
+            [checked]="audioService.getMuteState()"
+            (change)="audioService.toggleMute()"
+          />
+          Mute All Sounds
+        </label>
+      </div>
+
+      <!-- Music Volume -->
+      <div class="setting-item flex items-center gap-2">
+        <label>Background Music</label>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          value="0.1"
+          [(ngModel)]="musicVolume"
+          (change)="updateMusicVolume()"
+        />
+        <span>{{ (musicVolume * 100).toFixed(0) }}%</span>
+      </div>
+
+      <!-- SFX Volume -->
+      <div class="setting-item flex items-center gap-2">
+        <label>Sound Effects</label>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          value="0.1"
+          [(ngModel)]="sfxVolume"
+          (input)="updateSFXVolume()"
+        />
+        <span>{{ (sfxVolume * 100).toFixed(0) }}%</span>
+      </div>
+    </div>
 
   </div>
 </app-dialog>

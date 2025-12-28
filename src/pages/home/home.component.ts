@@ -1,4 +1,14 @@
-import {Component, ElementRef, inject, OnInit, signal, ViewChild} from '@angular/core';
+import {
+  AfterContentInit,
+  AfterViewInit,
+  Component,
+  ElementRef,
+  HostListener,
+  inject, OnDestroy,
+  OnInit,
+  signal,
+  ViewChild
+} from '@angular/core';
 import {InputFieldBaseComponent} from '../../components/input-field-base/input-field-base.component';
 import {ButtonComponent} from '../../components/button/button.component';
 import {DialogComponent} from '../../components/dialog/dialog.component';
@@ -7,7 +17,11 @@ import {FormsModule} from '@angular/forms';
 import {NgClass, NgOptimizedImage} from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
 import tipsData from '../../data/did-you-know.json';
-import {getRandomIntInclusive} from '../../utils/utils';
+import {animateHomeScreen, currentTip, loadingState, screenState} from '../../utils/animations';
+import {ApiRetryService} from '../../services/api-retry.service';
+import {GameQuestion} from '../../data/data.types';
+import {GameDataService} from '../../services/game-data.service';
+import {AudioService} from '../../services/audio.service';
 
 @Component({
   selector: 'app-home',
@@ -22,7 +36,7 @@ import {getRandomIntInclusive} from '../../utils/utils';
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
-export class HomeComponent implements OnInit{
+export class HomeComponent implements OnInit, OnDestroy{
   @ViewChild('hoursEl', { static: false }) hoursEl!: ElementRef;
   @ViewChild('minutesEl', { static: false }) minutesEl!: ElementRef;
   @ViewChild('secondsEl', { static: false }) secondsEl!: ElementRef;
@@ -39,20 +53,65 @@ export class HomeComponent implements OnInit{
   private previousSeconds: number = 0;
 
   isDialogOpen: boolean = false;
-  DialogComponent: any;
+  isSettingsDialogOpen: boolean = false;
+
+  musicVolume: number = 0;
+  sfxVolume: number = 0;
+
+
+  protected readonly currentTip = currentTip;
+  protected readonly animateHomeScreen = animateHomeScreen;
+  protected readonly screenState = screenState;
+
+  private apiRetryService = inject(ApiRetryService);
+  gameDataService = inject(GameDataService)
   private router = inject(Router);
-  screenState: 'loading' | 'home' = 'home';
-  tips: any[] = tipsData;
+  audioService = inject(AudioService);
+
+
+  // Expose service signals
+  currentRetry = this.apiRetryService.currentRetry;
+  maxRetries = this.apiRetryService.maxRetries;
+  isRetrying = this.apiRetryService.isRetrying;
+  hasFailed = this.apiRetryService.hasFailed;
 
   ngOnInit(){
+    this.audioService.playBackgroundMusic();
+    this.musicVolume = this.audioService.getMusicVolume();
+    this.sfxVolume = this.audioService.getSFXVolume();
+
+
     setTimeout(() => {
-      this.animateHomeScreen(-50, 50, -50, false)
+      animateHomeScreen(-50, 50, -50, false)
+      this.audioService.playBackgroundMusic();
     }, 200)
 
     this.updateCountdown();
     this.intervalId = setInterval(() => this.updateCountdown(), 1000);
-    // console.log(this.tips)
+
+    (window as any).loadGameData = () => this.gameDataService.loadGameData();
   }
+
+
+  @HostListener('document:click', ['$event'])
+  @HostListener('document:keydown', ['$event'])
+  @HostListener('document:touchstart', ['$event'])
+  onUserInteraction() {
+      this.audioService.playBackgroundMusic();
+  }
+
+  updateMusicVolume() {
+    this.audioService.setMusicVolume(this.musicVolume);
+  }
+
+  updateSFXVolume(){
+    this.audioService.setSFXVolume(this.sfxVolume);
+  }
+
+  playClick(){
+    this.audioService.playSound('mouse-click');
+  }
+
 
   private updateCountdown() {
     const now = new Date();
@@ -119,52 +178,6 @@ export class HomeComponent implements OnInit{
     return num.toString().padStart(2, '0');
   }
 
-  enterArena(){
-    if (this.screenState == "loading"){
-      console.log("Hi")
-      setTimeout(() => {
-        gsap.to('.vinyl-img', {
-          rotation: 360,
-          duration: 2,
-          repeat: -1,
-          ease: "none"
-        })
-
-        gsap.to('.load-header', {
-          x: 0,
-          opacity: 1,
-          duration: 1,
-          ease: "power2.inOut"
-        })
-
-        gsap.fromTo('.tips-container', {
-          y: 30
-        }, {
-          y: 0,
-          opacity: 1,
-          delay: 0.5,
-          duration: 0.75,
-          ease: "power2.inOut",
-        })
-
-        gsap.to('.tips-sentence', {
-          opacity: 0.6,
-          duration: 0.5,
-          ease: "power2.inOut",
-          onComplete: () => {
-            this.randomizeTips()
-
-            setInterval(() => {
-              this.randomizeTips()
-            }, 9000)
-          }
-        })
-      }, 1000)
-    }
-
-
-  }
-
   // How to Play dialog
 
   currentStep = signal(0);
@@ -203,7 +216,14 @@ export class HomeComponent implements OnInit{
     }
   ]
 
-  closeDialog(){
+  openSettings(){
+    this.playClick();
+    setTimeout(() => {
+      this.isSettingsDialogOpen = true;
+    }, 100)
+  }
+
+  closeSettings(){
     this.isDialogOpen = false
 
     setTimeout(() => {
@@ -222,165 +242,13 @@ export class HomeComponent implements OnInit{
     if (this.currentStep() != this.steps.length - 1){
 
       this.currentStep.update(val => val + 1);
-
-      // console.log("Before: " + this.currentStep())
-      // gsap.to('.step-title', {
-      //   x: -100,
-      //   opacity: 0,
-      //   duration: 0.5,
-      //   ease: 'power2.out',
-      //   onComplete: () => {
-      //     setTimeout(() => {
-      //       this.currentStep.update(val => val + 1);
-      //     }, 200)
-      //
-      //     console.log("After: " + this.currentStep())
-      //     gsap.to('.step-title', {
-      //       x: 0,
-      //       opacity: 1,
-      //       duration: 0.5,
-      //       ease: 'power2.in'
-      //     })
-      //   }
-      // })
     }
   }
 
-
-  // Animate home screen
-
-  animateHomeScreen(first: number, second: number, third: number, alreadyAnimated: boolean){
-    if (!alreadyAnimated){
-      gsap.fromTo('.header-container', {
-        y: first,
-        opacity: 0,
-      }, {
-        y: 0,
-        opacity: 1,
-        duration: 1,
-        ease: 'power2.inOut'
-      })
-
-      gsap.fromTo('.timer-container', {
-        y: second,
-        opacity: 0,
-      }, {
-        y: 0,
-        opacity: 1,
-        duration: 1,
-        ease: 'power2.inOut'
-      })
-
-      gsap.fromTo('.body-container', {
-        x: third,
-        opacity: 0,
-      }, {
-        x: 0,
-        opacity: 1,
-        duration: 1.25,
-        delay: 0.75,
-        ease: 'power2.inOut'
-      })
-    }else{
-
-      // Reverse to leave screen
-      gsap.to('.header-container', {
-        y: first,
-        opacity: 0,
-        duration: 1,
-        ease: 'power2.inOut'
-      })
-
-      gsap.to('.timer-container', {
-        y: second,
-        opacity: 0,
-        duration: 1,
-        ease: 'power2.inOut'
-      })
-
-      gsap.to('.body-container', {
-        x: third,
-        opacity: 0,
-        duration: 1.25,
-        delay: 0.75,
-        ease: 'power2.inOut',
-        onComplete: () => {
-          // Change screen state to loading after last animation ends
-          setTimeout(() => {
-            this.screenState = "loading";
-            this.enterArena()
-          }, 100)
-        }
-      })
-
-      gsap.to('.absolute', {
-        y: third,
-        opacity: 0,
-        duration: 1,
-        ease: 'power2.inOut'
-      })
-    }
-
+  ngOnDestroy(){
+    screenState.set('home');
+    this.audioService.stopBackgroundMusic()
   }
 
-  currentTip: { artist: string; fact: string; } | undefined;
-  // Array to hold the tips that have been shown already
-  alreadyShowedIndex: number[] = []
-
-  randomizeTips(){
-      if (this.alreadyShowedIndex.length != this.tips.length) {
-
-        if (this.currentTip == undefined) {
-          // Get a random number b/n 0 and the length of the tips data array
-          let randomNo = getRandomIntInclusive(0, tipsData.length - 1);
-
-          while (this.alreadyShowedIndex.find(n => n == randomNo)) {
-            randomNo = getRandomIntInclusive(0, tipsData.length - 1)
-          }
-
-          this.alreadyShowedIndex.push(randomNo);
-
-          this.currentTip = tipsData[randomNo];
-
-          this.fadeInSentence()
-        } else {
-          gsap.to('.tips-sentence', {
-            opacity: 0,
-            ease: "power2.inOut",
-            duration: 0.5,
-            onComplete: () => {
-              // Get a random number b/n 0 and the length of the tips data array
-              let randomNo = getRandomIntInclusive(0, tipsData.length - 1);
-
-              while (this.alreadyShowedIndex.find(n => n == randomNo)) {
-                randomNo = getRandomIntInclusive(0, tipsData.length - 1)
-              }
-
-              this.alreadyShowedIndex.push(randomNo);
-
-              this.currentTip = tipsData[randomNo];
-
-              setTimeout(() => {
-                this.fadeInSentence()
-              }, 500)
-            }
-          })
-        }
-
-      } else {
-        this.alreadyShowedIndex = [];
-        this.randomizeTips()
-      }
-  }
-
-
-
-  fadeInSentence(){
-    gsap.to('.tips-sentence', {
-      opacity: 0.6,
-      delay: 0.05,
-      duration: 0.5,
-      ease: "power2.inOut",
-    })
-  }
+  protected readonly HTMLInputElement = HTMLInputElement;
 }
