@@ -11,7 +11,7 @@ import {AudioService} from '../../services/audio.service';
   styleUrl: './game.component.css'
 })
 export class GameComponent implements OnInit, OnDestroy {
-  state: 'countdown' | 'playing' | 'ended' = 'ended';
+  state: 'countdown' | 'playing' | 'ended' = 'countdown';
   countdownNumber = signal(3);
 
   gameDataService = inject(GameDataService);
