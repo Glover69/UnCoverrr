@@ -28,6 +28,10 @@ let tipIntervalId: ReturnType<typeof setInterval> | null = null;
 
 
 export function animateHomeScreen(first: number, second: number, third: number, alreadyAnimated: boolean){
+  if (typeof window !== 'undefined' && (window as any).playClick) {
+    (window as any).playClick();
+  }
+
   if (!alreadyAnimated){
     gsap.fromTo('.header-container', {
       y: first,

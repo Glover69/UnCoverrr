@@ -1,21 +1,17 @@
 import {Component, computed, effect, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import gsap from 'gsap';
 import {GameDataService} from '../../services/game-data.service';
-import {GameQuestion} from '../../data/data.types';
-import {ButtonComponent} from '../../components/button/button.component';
 import {AudioService} from '../../services/audio.service';
 
 @Component({
   selector: 'app-game',
   imports: [
-    ButtonComponent
-
   ],
   templateUrl: './game.component.html',
   styleUrl: './game.component.css'
 })
 export class GameComponent implements OnInit, OnDestroy {
-  state: 'countdown' | 'playing' | 'answered' = 'countdown';
+  state: 'countdown' | 'playing' | 'ended' = 'countdown';
   countdownNumber = signal(3);
 
   gameDataService = inject(GameDataService);
@@ -37,15 +33,45 @@ export class GameComponent implements OnInit, OnDestroy {
 
 
   ngOnInit(){
-
-    if(!this.gameDataService.isQuestionsLoaded()){
-      this.gameDataService.loadGameData()
+    if (this.state === 'countdown'){
+      if(!this.gameDataService.isQuestionsLoaded()){
+        this.gameDataService.loadGameData()
+      }
+      setTimeout(() => {
+        this.audioService.playSound('countdown-to-start');
+        this.startCountdown()
+      }, 500)
     }
-    setTimeout(() => {
-      this.audioService.playSound('countdown-to-start');
-      this.startCountdown()
-    }, 500)
+  }
 
+  timeRemaining = signal(15)
+  totalPoints = signal(0);
+  streak = signal(0)
+
+  startTimer(){
+    if (this.timeRemaining() >= 0) {
+      const gameIntID = setInterval(() => {
+        this.timeRemaining.update(n => n - 1);
+        console.log(this.timeRemaining());
+
+        if (this.timeRemaining() === 10){
+          console.log("10s more!")
+          this.audioService.playSound('countdown');
+        }
+
+        if (this.timeRemaining() === 0){
+          clearInterval(gameIntID);
+          console.log("Interval stopped");
+          this.endGame();
+        }
+      }, 1000)
+    }
+  }
+
+  endGame(){
+    this.state = 'ended';
+    this.audioService.stopInGameMusic()
+    this.audioService.stopSound('countdown');
   }
 
   startCountdown() {
@@ -57,6 +83,7 @@ export class GameComponent implements OnInit, OnDestroy {
         setTimeout(() => {
           this.state = 'playing';
           this.audioService.playInGamedMusic();
+          this.startTimer()
         }, 1000);
       }
     });
@@ -94,8 +121,11 @@ export class GameComponent implements OnInit, OnDestroy {
 
     if (option === this.currentQuestion()?.correctAnswer){
       this.audioService.playSound('correct');
+      this.totalPoints.update(n => n + 100);
+      this.streak.update(n => n + 1);
     }else{
       this.audioService.playSound('wrong');
+      this.streak.set(0)
     }
 
     this.nextQuestion();

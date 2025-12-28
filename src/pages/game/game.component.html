@@ -17,7 +17,7 @@
             <span class="font-medium opacity-60 text-sm md:text-base lg:text-lg">Total Score</span>
             <span class="font-medium text-sm md:text-base lg:text-lg">⭐️</span>
           </div>
-          <span class="font-bold text-2xl md:text-4xl lg:text-5xl">3,500</span>
+          <span class="font-bold text-2xl md:text-4xl lg:text-5xl">{{totalPoints()}}</span>
         </div>
 
         <!-- Timer -->
@@ -26,7 +26,7 @@
             <span class="font-medium opacity-60 text-sm md:text-base lg:text-lg">Timer</span>
             <span class="font-medium text-sm md:text-base lg:text-lg">⏳</span>
           </div>
-        <span class="font-bold text-5xl md:text-7xl text-center w-20 md:w-32">60<span class="text-2xl md:text-3xl font-bold opacity-60">s</span></span>
+        <span class="font-bold text-5xl md:text-7xl text-center w-20 md:w-32">{{timeRemaining()}}<span class="text-2xl md:text-3xl font-bold opacity-60">s</span></span>
         </div>
 
         <!-- Streak counter -->
@@ -35,14 +35,14 @@
             <span class="font-medium opacity-60 text-sm md:text-base lg:text-lg">Streak</span>
             <span class="font-medium text-sm md:text-base lg:text-lg">🔥</span>
           </div>
-          <span class="font-bold text-2xl md:text-4xl lg:text-5xl">x0</span>
+          <span class="font-bold text-2xl md:text-4xl lg:text-5xl">x{{streak()}}</span>
         </div>
       </div>
 
 
 
         <div class="w-72 h-72 lg:w-96 lg:h-96 rounded-lg overflow-hidden">
-          <img [src]="currentQuestion()!.albumCover" class="object-cover w-full h-full">
+          <img [src]="currentQuestion()!.albumCover" class="object-cover w-full h-full" alt="album-cover">
         </div>
 
       <div class="options-group grid grid-cols-2 grid-rows-2 items-center gap-3 w-full lg:px-24">
@@ -52,10 +52,10 @@
         <div (click)="chooseAnswer(currentQuestion()!.options[3])" class="single-option cursor-pointer w-full p-6 text-center rounded-lg bg-[#32931B] text-white font-bold text-lg">{{currentQuestion()!.options[3]}}</div>
       </div>
 
-      <app-button size="sm" hierarchy="primary" type="button" icon="false" text="Next" (clicked)="nextQuestion()"></app-button>
-
 
     </div>
+  } @else if (state === 'ended'){
+    <span>Game ended.</span>
   }
 
 

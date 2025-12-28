@@ -90,6 +90,7 @@ export class HomeComponent implements OnInit, OnDestroy{
     this.intervalId = setInterval(() => this.updateCountdown(), 1000);
 
     (window as any).loadGameData = () => this.gameDataService.loadGameData();
+    (window as any).playClick = () => this.playClick();
   }
 
 
