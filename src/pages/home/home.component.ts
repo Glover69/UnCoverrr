@@ -4,7 +4,7 @@ import {
   Component,
   ElementRef,
   HostListener,
-  inject,
+  inject, OnDestroy,
   OnInit,
   signal,
   ViewChild
@@ -36,7 +36,7 @@ import {AudioService} from '../../services/audio.service';
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
-export class HomeComponent implements OnInit{
+export class HomeComponent implements OnInit, OnDestroy{
   @ViewChild('hoursEl', { static: false }) hoursEl!: ElementRef;
   @ViewChild('minutesEl', { static: false }) minutesEl!: ElementRef;
   @ViewChild('secondsEl', { static: false }) secondsEl!: ElementRef;
@@ -53,7 +53,10 @@ export class HomeComponent implements OnInit{
   private previousSeconds: number = 0;
 
   isDialogOpen: boolean = false;
-  DialogComponent: any;
+  isSettingsDialogOpen: boolean = false;
+
+  musicVolume: number = 0;
+  sfxVolume: number = 0;
 
 
   protected readonly currentTip = currentTip;
@@ -74,6 +77,9 @@ export class HomeComponent implements OnInit{
 
   ngOnInit(){
     this.audioService.playBackgroundMusic();
+    this.musicVolume = this.audioService.getMusicVolume();
+    this.sfxVolume = this.audioService.getSFXVolume();
+
 
     setTimeout(() => {
       animateHomeScreen(-50, 50, -50, false)
@@ -87,7 +93,6 @@ export class HomeComponent implements OnInit{
   }
 
 
-  @HostListener('document:mousemove', ['$event'])
   @HostListener('document:click', ['$event'])
   @HostListener('document:keydown', ['$event'])
   @HostListener('document:touchstart', ['$event'])
@@ -95,6 +100,17 @@ export class HomeComponent implements OnInit{
       this.audioService.playBackgroundMusic();
   }
 
+  updateMusicVolume() {
+    this.audioService.setMusicVolume(this.musicVolume);
+  }
+
+  updateSFXVolume(){
+    this.audioService.setSFXVolume(this.sfxVolume);
+  }
+
+  playClick(){
+    this.audioService.playSound('mouse-click');
+  }
 
 
   private updateCountdown() {
@@ -200,7 +216,14 @@ export class HomeComponent implements OnInit{
     }
   ]
 
-  closeDialog(){
+  openSettings(){
+    this.playClick();
+    setTimeout(() => {
+      this.isSettingsDialogOpen = true;
+    }, 100)
+  }
+
+  closeSettings(){
     this.isDialogOpen = false
 
     setTimeout(() => {
@@ -222,4 +245,10 @@ export class HomeComponent implements OnInit{
     }
   }
 
+  ngOnDestroy(){
+    screenState.set('home');
+    this.audioService.stopBackgroundMusic()
+  }
+
+  protected readonly HTMLInputElement = HTMLInputElement;
 }

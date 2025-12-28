@@ -1,4 +1,4 @@
-import {Component, computed, effect, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, effect, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import gsap from 'gsap';
 import {GameDataService} from '../../services/game-data.service';
 import {GameQuestion} from '../../data/data.types';
@@ -14,7 +14,7 @@ import {AudioService} from '../../services/audio.service';
   templateUrl: './game.component.html',
   styleUrl: './game.component.css'
 })
-export class GameComponent implements OnInit{
+export class GameComponent implements OnInit, OnDestroy {
   state: 'countdown' | 'playing' | 'answered' = 'countdown';
   countdownNumber = signal(3);
 
@@ -99,5 +99,9 @@ export class GameComponent implements OnInit{
     }
 
     this.nextQuestion();
+  }
+
+  ngOnDestroy() {
+    this.audioService.stopInGameMusic()
   }
 }

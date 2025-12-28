@@ -27,6 +27,7 @@ export class AudioService {
     this.soundEffects['correct'] = new Audio('audio/correct.mp3');
     this.soundEffects['wrong'] = new Audio('audio/wrong-2.wav');
     this.soundEffects['click'] = new Audio('audio/click.mp3');
+    this.soundEffects['mouse-click'] = new Audio('audio/mouse-click.wav');
     this.soundEffects['countdown'] = new Audio('audio/countdown-in-game.mp3');
     this.soundEffects['countdown-to-start'] = new Audio('audio/countdown-to-game.mp3');
     // this.soundEffects['gameOver'] = new Audio('assets/audio/game-over.mp3');
@@ -67,6 +68,13 @@ export class AudioService {
     }
   }
 
+  stopInGameMusic() {
+    if (this.inGameMusic) {
+      this.inGameMusic.pause();
+      this.inGameMusic.currentTime = 0;
+    }
+  }
+
   // Sound Effects
   playSound(soundName: string) {
     if (this.isMuted) return;
@@ -79,6 +87,14 @@ export class AudioService {
         console.log('Sound effect play prevented:', err);
       });
     }
+  }
+
+  getMusicVolume(){
+    return this.musicVolume
+  }
+
+  getSFXVolume(){
+    return this.sfxVolume
   }
 
   // Volume Controls
