@@ -4,6 +4,7 @@ import {GameQuestion, GameData} from '../data/data.types';
 import {ApiRetryService} from './api-retry.service';
 import {animateLoadingScreenAway} from '../utils/animations';
 import {Router} from '@angular/router';
+import {AudioService} from './audio.service';
 
 @Injectable({ providedIn: 'root' })
 export class GameDataService {
@@ -13,6 +14,7 @@ export class GameDataService {
 
   private API_URL = 'https://album-game-backend.onrender.com/api';
   private router = inject(Router);
+  audioService = inject(AudioService)
 
   // Read-write signal
   gameQuestions = signal<GameQuestion[] | undefined>(undefined);
@@ -43,6 +45,7 @@ export class GameDataService {
         // loading screen away and navigate to the game screen
         setTimeout(() => {
           animateLoadingScreenAway(() => {
+            this.audioService.fadeOut(500);
             this.router.navigate(['/game'])
           })
         }, 1500)

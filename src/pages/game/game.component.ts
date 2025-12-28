@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import {GameDataService} from '../../services/game-data.service';
 import {GameQuestion} from '../../data/data.types';
 import {ButtonComponent} from '../../components/button/button.component';
+import {AudioService} from '../../services/audio.service';
 
 @Component({
   selector: 'app-game',
@@ -18,6 +19,8 @@ export class GameComponent implements OnInit{
   countdownNumber = signal(3);
 
   gameDataService = inject(GameDataService);
+  audioService = inject(AudioService)
+
   questions = this.gameDataService.gameQuestions;
   currentQuestionIndex = signal(0);
 
@@ -28,6 +31,7 @@ export class GameComponent implements OnInit{
     if (!questions || questions.length === 0) return null;
     if (index < 0 || index >= questions.length) return null;
 
+    console.log(questions[index])
     return questions[index];
   });
 
@@ -38,6 +42,7 @@ export class GameComponent implements OnInit{
       this.gameDataService.loadGameData()
     }
     setTimeout(() => {
+      this.audioService.playSound('countdown-to-start');
       this.startCountdown()
     }, 500)
 
@@ -51,6 +56,7 @@ export class GameComponent implements OnInit{
         this.countdownNumber.set(0)
         setTimeout(() => {
           this.state = 'playing';
+          this.audioService.playInGamedMusic();
         }, 1000);
       }
     });

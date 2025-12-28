@@ -1,4 +1,14 @@
-import {AfterContentInit, AfterViewInit, Component, ElementRef, inject, OnInit, signal, ViewChild} from '@angular/core';
+import {
+  AfterContentInit,
+  AfterViewInit,
+  Component,
+  ElementRef,
+  HostListener,
+  inject,
+  OnInit,
+  signal,
+  ViewChild
+} from '@angular/core';
 import {InputFieldBaseComponent} from '../../components/input-field-base/input-field-base.component';
 import {ButtonComponent} from '../../components/button/button.component';
 import {DialogComponent} from '../../components/dialog/dialog.component';
@@ -11,6 +21,7 @@ import {animateHomeScreen, currentTip, loadingState, screenState} from '../../ut
 import {ApiRetryService} from '../../services/api-retry.service';
 import {GameQuestion} from '../../data/data.types';
 import {GameDataService} from '../../services/game-data.service';
+import {AudioService} from '../../services/audio.service';
 
 @Component({
   selector: 'app-home',
@@ -52,6 +63,7 @@ export class HomeComponent implements OnInit{
   private apiRetryService = inject(ApiRetryService);
   gameDataService = inject(GameDataService)
   private router = inject(Router);
+  audioService = inject(AudioService);
 
 
   // Expose service signals
@@ -61,14 +73,26 @@ export class HomeComponent implements OnInit{
   hasFailed = this.apiRetryService.hasFailed;
 
   ngOnInit(){
+    this.audioService.playBackgroundMusic();
+
     setTimeout(() => {
       animateHomeScreen(-50, 50, -50, false)
+      this.audioService.playBackgroundMusic();
     }, 200)
 
     this.updateCountdown();
     this.intervalId = setInterval(() => this.updateCountdown(), 1000);
 
     (window as any).loadGameData = () => this.gameDataService.loadGameData();
+  }
+
+
+  @HostListener('document:mousemove', ['$event'])
+  @HostListener('document:click', ['$event'])
+  @HostListener('document:keydown', ['$event'])
+  @HostListener('document:touchstart', ['$event'])
+  onUserInteraction() {
+      this.audioService.playBackgroundMusic();
   }
 
 
