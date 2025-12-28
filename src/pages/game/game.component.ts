@@ -44,7 +44,7 @@ export class GameComponent implements OnInit, OnDestroy {
     }
   }
 
-  timeRemaining = signal(15)
+  timeRemaining = signal(60)
   totalPoints = signal(0);
   streak = signal(0)
 
