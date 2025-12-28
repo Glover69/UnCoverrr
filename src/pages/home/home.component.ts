@@ -1,4 +1,4 @@
-import {Component, ElementRef, inject, OnInit, signal, ViewChild} from '@angular/core';
+import {AfterContentInit, AfterViewInit, Component, ElementRef, inject, OnInit, signal, ViewChild} from '@angular/core';
 import {InputFieldBaseComponent} from '../../components/input-field-base/input-field-base.component';
 import {ButtonComponent} from '../../components/button/button.component';
 import {DialogComponent} from '../../components/dialog/dialog.component';
@@ -7,7 +7,10 @@ import {FormsModule} from '@angular/forms';
 import {NgClass, NgOptimizedImage} from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
 import tipsData from '../../data/did-you-know.json';
-import {animateHomeScreen, currentTip, screenState} from '../../utils/animations';
+import {animateHomeScreen, currentTip, loadingState, screenState} from '../../utils/animations';
+import {ApiRetryService} from '../../services/api-retry.service';
+import {GameQuestion} from '../../data/data.types';
+import {GameDataService} from '../../services/game-data.service';
 
 @Component({
   selector: 'app-home',
@@ -40,12 +43,22 @@ export class HomeComponent implements OnInit{
 
   isDialogOpen: boolean = false;
   DialogComponent: any;
-  private router = inject(Router);
+
 
   protected readonly currentTip = currentTip;
   protected readonly animateHomeScreen = animateHomeScreen;
   protected readonly screenState = screenState;
 
+  private apiRetryService = inject(ApiRetryService);
+  gameDataService = inject(GameDataService)
+  private router = inject(Router);
+
+
+  // Expose service signals
+  currentRetry = this.apiRetryService.currentRetry;
+  maxRetries = this.apiRetryService.maxRetries;
+  isRetrying = this.apiRetryService.isRetrying;
+  hasFailed = this.apiRetryService.hasFailed;
 
   ngOnInit(){
     setTimeout(() => {
@@ -54,7 +67,11 @@ export class HomeComponent implements OnInit{
 
     this.updateCountdown();
     this.intervalId = setInterval(() => this.updateCountdown(), 1000);
+
+    (window as any).loadGameData = () => this.gameDataService.loadGameData();
   }
+
+
 
   private updateCountdown() {
     const now = new Date();
@@ -180,4 +197,5 @@ export class HomeComponent implements OnInit{
       this.currentStep.update(val => val + 1);
     }
   }
+
 }

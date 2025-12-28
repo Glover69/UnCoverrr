@@ -1,0 +1,22 @@
+
+<section class="main-container w-full min-h-screen flex items-center justify-center">
+
+  @if (state === 'countdown') {
+    @if (countdownNumber() === 0) {
+      <div class="countdown-number font-bold text-[15rem]">GO!</div>
+    } @else {
+      <div class="countdown-number opacity-0 font-bold text-[20rem]">{{ countdownNumber() }}</div>
+    }
+
+  } @else if (state === 'playing'){
+    <div class="flex flex-col items-center justify-center gap-2">
+        <div class="w-72 h-72 lg:w-96 lg:h-96 rounded-lg overflow-hidden">
+          <img [src]="currentQuestion()!.albumCover" class="object-cover w-full h-full">
+        </div>
+      <span class="font-bold text-2xl text-center">{{ currentQuestion()!.albumName }}</span>
+      <app-button size="sm" hierarchy="primary" type="button" icon="false" text="Next" (clicked)="nextQuestion()"></app-button>
+    </div>
+  }
+
+
+</section>

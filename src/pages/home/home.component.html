@@ -7,7 +7,7 @@
     @case ('home'){
       <div class="center-container w-xs lg:w-sm h-fit flex flex-col items-center gap-5">
         <div class="header-container opacity-0 flex flex-col items-center gap-2">
-          <img class="w-32" ngSrc="/images/album-cover-2.png" height="1024" width="1024">
+          <img class="w-32" priority ngSrc="/images/album-cover-2.png" height="1024" width="1024">
           <span class="font-bold text-4xl">UnCoverrr</span>
           <span class="font-normal text-base">The Daily Music Challenge.</span>
         </div>
@@ -61,6 +61,21 @@
       <div class="load-header opacity-0 flex flex-col items-center">
         <img priority class="w-32 vinyl-img" ngSrc="/images/vinyl.png" height="1024" width="1024">
         <span class="font-semibold text-xl">Loading Arena...</span>
+
+        @switch (gameDataService.isQuestionsLoaded()){
+          @case (false){
+            <span class="font-regular text-base opacity-60">Retrieving and shuffling questions</span>
+          }
+          @case (true){
+            <span class="font-regular text-base opacity-60">Finishing up</span>
+          }
+        }
+
+        @if (isRetrying()) {
+          <span class="font-regular text-base opacity-60">
+            Retrying ({{ currentRetry() }}/{{ maxRetries() }})
+          </span>
+        }
       </div>
 
       <div class="flex opacity-0 absolute bottom-24 tips-container flex-col max-w-xs md:max-w-lg gap-3 items-center">
