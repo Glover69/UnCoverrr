@@ -13,6 +13,8 @@ export class GameDataService {
   }
 
   private API_URL = 'https://album-game-backend.onrender.com/api';
+  // private API_URL = 'http://localhost:3030/api';
+
   private router = inject(Router);
   audioService = inject(AudioService)
 
