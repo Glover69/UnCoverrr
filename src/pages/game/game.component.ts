@@ -6,6 +6,7 @@ import {AudioService} from '../../services/audio.service';
 @Component({
   selector: 'app-game',
   imports: [
+
   ],
   templateUrl: './game.component.html',
   styleUrl: './game.component.css'
@@ -19,6 +20,8 @@ export class GameComponent implements OnInit, OnDestroy {
 
   questions = this.gameDataService.gameQuestions;
   currentQuestionIndex = signal(0);
+
+  gameIntID: any;
 
   currentQuestion = computed(() => {
     const questions = this.questions();
@@ -41,16 +44,22 @@ export class GameComponent implements OnInit, OnDestroy {
         this.audioService.playSound('countdown-to-start');
         this.startCountdown()
       }, 500)
+    }else{
+      this.endGame()
     }
   }
 
   timeRemaining = signal(60)
   totalPoints = signal(0);
   streak = signal(0)
+  bestStreak = signal(0);
+  totalAnswered = signal(0)
+  totalCorrect = signal(0)
+  accuracy = signal(0);
 
   startTimer(){
     if (this.timeRemaining() >= 0) {
-      const gameIntID = setInterval(() => {
+      this.gameIntID = setInterval(() => {
         this.timeRemaining.update(n => n - 1);
         console.log(this.timeRemaining());
 
@@ -60,7 +69,7 @@ export class GameComponent implements OnInit, OnDestroy {
         }
 
         if (this.timeRemaining() === 0){
-          clearInterval(gameIntID);
+          clearInterval(this.gameIntID);
           console.log("Interval stopped");
           this.endGame();
         }
@@ -69,9 +78,10 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   endGame(){
-    this.state = 'ended';
+    this.accuracy.set(Math.round((this.totalCorrect() / this.totalAnswered()) * 100));
     this.audioService.stopInGameMusic()
     this.audioService.stopSound('countdown');
+    this.animateEndGameScreen()
   }
 
   startCountdown() {
@@ -119,10 +129,18 @@ export class GameComponent implements OnInit, OnDestroy {
   chooseAnswer(option: string){
     this.audioService.playSound('click');
 
+    this.totalAnswered.update(n => n + 1);
+
     if (option === this.currentQuestion()?.correctAnswer){
       this.audioService.playSound('correct');
       this.totalPoints.update(n => n + 100);
       this.streak.update(n => n + 1);
+      if (this.streak() > this.bestStreak()){
+        this.bestStreak.set(this.streak());
+      }
+
+      this.totalCorrect.update(n => n + 1);
+
     }else{
       this.audioService.playSound('wrong');
       this.streak.set(0)
@@ -131,7 +149,67 @@ export class GameComponent implements OnInit, OnDestroy {
     this.nextQuestion();
   }
 
+  animateEndGameScreen(){
+    this.state = 'ended';
+
+    setTimeout(() => {
+      gsap.fromTo('.ended-header', {
+        y: 30
+      }, {
+        y: 0,
+        opacity: 1,
+        duration: 0.75,
+        ease: "power2.inOut"
+      })
+
+      gsap.fromTo('.card-total-score', {
+        y: 30
+      }, {
+        y: 0,
+        opacity: 1,
+        duration: 0.75,
+        delay: 0.5,
+        ease: "power2.inOut"
+      })
+
+      gsap.fromTo('.card-other-stats', {
+        y: 30
+      }, {
+        y: 0,
+        opacity: 1,
+        duration: 0.75,
+        delay: 0.5,
+        ease: "power2.inOut"
+      })
+
+      // Animate stats counting up
+      const statsProxy = {
+        points: 0,
+        correct: 0,
+        streak: 0,
+        accuracy: 0
+      };
+
+      gsap.to(statsProxy, {
+        points: this.totalPoints(),
+        correct: this.totalCorrect(),
+        streak: this.bestStreak(),
+        accuracy: this.accuracy(),
+        duration: 2.5,
+        ease: "power2.out",
+        onUpdate: () => {
+          this.totalPoints.set(Math.round(statsProxy.points));
+          this.totalCorrect.set(Math.round(statsProxy.correct));
+          this.bestStreak.set(Math.round(statsProxy.streak));
+          this.accuracy.set((Math.round(statsProxy.accuracy)));
+        }
+      });
+
+    }, 200)
+  }
+
   ngOnDestroy() {
     this.audioService.stopInGameMusic()
+    clearInterval(this.gameIntID)
   }
 }
