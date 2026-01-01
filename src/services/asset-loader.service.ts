@@ -59,6 +59,11 @@ export class AssetLoaderService {
       category: AssetCategory.GAME,
       type: 'audio'
     },
+    {
+      path: 'images/trophy.png',
+      category: AssetCategory.GAME,
+      type: 'image'
+    },
     // {
     //   path: 'audio/game-over.mp3',
     //   category: AssetCategory.GAME,
