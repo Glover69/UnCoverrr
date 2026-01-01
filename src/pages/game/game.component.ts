@@ -41,7 +41,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.gameDataService.loadGameData()
       }
       setTimeout(() => {
-        this.audioService.playSound('countdown-to-start');
+        this.audioService.playSound('countdownBegin');
         this.startCountdown()
       }, 500)
     }else{
@@ -61,11 +61,10 @@ export class GameComponent implements OnInit, OnDestroy {
     if (this.timeRemaining() >= 0) {
       this.gameIntID = setInterval(() => {
         this.timeRemaining.update(n => n - 1);
-        console.log(this.timeRemaining());
 
         if (this.timeRemaining() === 10){
           console.log("10s more!")
-          this.audioService.playSound('countdown');
+          this.audioService.playSound('countdownEnd');
         }
 
         if (this.timeRemaining() === 0){
@@ -80,7 +79,7 @@ export class GameComponent implements OnInit, OnDestroy {
   endGame(){
     this.accuracy.set(Math.round((this.totalCorrect() / this.totalAnswered()) * 100));
     this.audioService.stopInGameMusic()
-    this.audioService.stopSound('countdown');
+    this.audioService.stopSound('countdownEnd');
     this.animateEndGameScreen()
   }
 
@@ -92,7 +91,7 @@ export class GameComponent implements OnInit, OnDestroy {
         this.countdownNumber.set(0)
         setTimeout(() => {
           this.state = 'playing';
-          this.audioService.playInGamedMusic();
+          this.audioService.playInGameMusic();
           this.startTimer()
         }, 1000);
       }
@@ -127,7 +126,7 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   chooseAnswer(option: string){
-    this.audioService.playSound('click');
+    this.audioService.playSound('mouseClick');
 
     this.totalAnswered.update(n => n + 1);
 

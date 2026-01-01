@@ -46,7 +46,7 @@
         <!--  </div>-->
 
       <div class="absolute bottom-6 right-8 flex items-center gap-1">
-        <span (click)="isDialogOpen = true" class="font-medium tracking-tighter text-sm hover:underline hover:cursor-pointer opacity-65">How to Play?</span>
+        <span (click)="openHowToPlay()" class="font-medium tracking-tighter text-sm hover:underline hover:cursor-pointer opacity-65">How to Play?</span>
       </div>
 
       <div class="absolute top-6 right-8 flex items-center gap-1">
@@ -124,7 +124,7 @@
       @if (currentStep() >= 1) {
         <app-button [disabled]="currentStep() == 0" (clicked)="previousStep()" size="sm" icon="false" hierarchy="secondary" type="button" text="Previous"></app-button>
       }
-      <app-button (clicked)="currentStep() == this.steps.length - 1 ? closeSettings() : nextStep()" size="sm" icon="false" hierarchy="primary" type="button" [text]="currentStep() == this.steps.length - 1 ? `Let's go!` : 'Next'"></app-button>
+      <app-button (clicked)="currentStep() == this.steps.length - 1 ? closeHowToPlay() : nextStep()" size="sm" icon="false" hierarchy="primary" type="button" [text]="currentStep() == this.steps.length - 1 ? `Let's go!` : 'Next'"></app-button>
     </div>
 
 

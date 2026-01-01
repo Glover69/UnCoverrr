@@ -42,16 +42,6 @@ export class GameDataService {
         console.log('Data loaded successfully', data);
         this.gameQuestions.set(data.questions);
         this.isQuestionsLoaded.set(true)
-
-        // After loading questions animate
-        // loading screen away and navigate to the game screen
-        setTimeout(() => {
-          animateLoadingScreenAway(() => {
-            this.audioService.fadeOut(500);
-            this.router.navigate(['/game'])
-          })
-        }, 1500)
-
       },
       error: (error) => {
         console.error('Failed after retries', error);
