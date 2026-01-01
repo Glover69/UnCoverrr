@@ -1,6 +1,4 @@
 import {
-  AfterContentInit,
-  AfterViewInit,
   Component,
   ElementRef,
   HostListener,
@@ -15,13 +13,12 @@ import {DialogComponent} from '../../components/dialog/dialog.component';
 import gsap from 'gsap';
 import {FormsModule} from '@angular/forms';
 import {NgClass, NgOptimizedImage} from '@angular/common';
-import {Router, RouterModule} from '@angular/router';
-import tipsData from '../../data/did-you-know.json';
-import {animateHomeScreen, currentTip, loadingState, screenState} from '../../utils/animations';
+import {Router} from '@angular/router';
+import {animateHomeScreen, animateLoadingScreenAway, currentTip, screenState} from '../../utils/animations';
 import {ApiRetryService} from '../../services/api-retry.service';
-import {GameQuestion} from '../../data/data.types';
 import {GameDataService} from '../../services/game-data.service';
 import {AudioService} from '../../services/audio.service';
+import {AssetLoaderService} from '../../services/asset-loader.service';
 
 @Component({
   selector: 'app-home',
@@ -67,6 +64,8 @@ export class HomeComponent implements OnInit, OnDestroy{
   gameDataService = inject(GameDataService)
   private router = inject(Router);
   audioService = inject(AudioService);
+  assetLoader = inject(AssetLoaderService);
+  gameService = inject(GameDataService);
 
 
   // Expose service signals
@@ -75,10 +74,15 @@ export class HomeComponent implements OnInit, OnDestroy{
   isRetrying = this.apiRetryService.isRetrying;
   hasFailed = this.apiRetryService.hasFailed;
 
+  criticalAssetsLoaded = signal(false);
+  loadingProgress = signal(0);
+
   ngOnInit(){
-    this.audioService.playBackgroundMusic();
-    this.musicVolume = this.audioService.getMusicVolume();
-    this.sfxVolume = this.audioService.getSFXVolume();
+
+    if(this.assetLoader.areCriticalAssetsLoaded()){
+      this.criticalAssetsLoaded.set(true);
+      this.audioService.initializeCriticalAudio();
+    }
 
 
     setTimeout(() => {
@@ -91,14 +95,36 @@ export class HomeComponent implements OnInit, OnDestroy{
 
     (window as any).loadGameData = () => this.gameDataService.loadGameData();
     (window as any).playClick = () => this.playClick();
+    (window as any).loadGameStuff = () => this.loadGameStuff();
+
   }
 
 
   @HostListener('document:click', ['$event'])
   @HostListener('document:keydown', ['$event'])
   @HostListener('document:touchstart', ['$event'])
-  onUserInteraction() {
+  async onFirstUserInteraction() {
+    // Only run once
+    if (this.criticalAssetsLoaded()) return;
+
+    try {
+      // 1. Unlock audio
+      await this.audioService.unlockAudio();
+
+      // 2. Load critical assets
+      await this.assetLoader.preloadAnyGroupOfAssets('critical');
+
+      // 3. Initialize audio with critical assets
+      this.audioService.initializeCriticalAudio();
+
+      // 4. Start menu music
       this.audioService.playBackgroundMusic();
+
+      this.criticalAssetsLoaded.set(true);
+
+    } catch (error) {
+      console.error('Failed to load critical assets:', error);
+    }
   }
 
   updateMusicVolume() {
@@ -110,7 +136,7 @@ export class HomeComponent implements OnInit, OnDestroy{
   }
 
   playClick(){
-    this.audioService.playSound('mouse-click');
+    this.audioService.playSound('mouseClick');
   }
 
 
@@ -224,25 +250,76 @@ export class HomeComponent implements OnInit, OnDestroy{
     }, 100)
   }
 
-  closeSettings(){
-    this.isDialogOpen = false
+  openHowToPlay(){
+    this.playClick();
+    setTimeout(() => {
+      this.isDialogOpen = true;
+    }, 100);
+  }
+
+  closeHowToPlay(){
+    this.playClick();
 
     setTimeout(() => {
       // Reset state for how to play dialog
+      this.isDialogOpen = false
       this.currentStep.set(0);
     }, 200)
   }
 
   previousStep(){
+    this.playClick();
     if (this.currentStep() != 0){
       this.currentStep.update(val => val - 1);
     }
   }
 
   nextStep(){
+    this.playClick();
     if (this.currentStep() != this.steps.length - 1){
 
       this.currentStep.update(val => val + 1);
+    }
+  }
+
+  private async loadGameAssets(): Promise<void> {
+    await this.assetLoader.preloadAnyGroupOfAssets('game');
+  }
+
+  private async loadQuestions(): Promise<void> {
+    this.gameService.loadGameData();
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+
+  async loadGameStuff(){
+    // Ensure critical assets loaded
+    await this.onFirstUserInteraction();
+
+    try {
+
+      // Load game assets + questions in parallel
+      await Promise.all([
+        this.loadGameAssets(),
+        this.loadQuestions()
+      ]);
+
+      // Initialize game audio
+      this.audioService.initializeGameAudio();
+      setTimeout(() => {
+        animateLoadingScreenAway(() => {
+          this.audioService.fadeOut(500);
+          this.router.navigate(['/game'])
+        })
+      }, 1500)
+
+    } catch (err){
+      console.error('Failed to load game:', err);
+      alert('Failed to load game. Please check your connection.');
+      this.screenState.set('home');
     }
   }
 
@@ -251,5 +328,4 @@ export class HomeComponent implements OnInit, OnDestroy{
     this.audioService.stopBackgroundMusic()
   }
 
-  protected readonly HTMLInputElement = HTMLInputElement;
 }
