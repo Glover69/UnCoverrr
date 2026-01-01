@@ -94,8 +94,8 @@ export function animateHomeScreen(first: number, second: number, third: number, 
           enterArena()
           // Call loadGameData here after state changes
           setTimeout(() => {
-            if (typeof window !== 'undefined' && (window as any).loadGameData) {
-              (window as any).loadGameData();
+            if (typeof window !== 'undefined' && (window as any).loadGameStuff) {
+              (window as any).loadGameStuff();
             }
           }, 3000)
         }, 100)
