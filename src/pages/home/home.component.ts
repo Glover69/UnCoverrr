@@ -77,13 +77,9 @@ export class HomeComponent implements OnInit, OnDestroy{
   criticalAssetsLoaded = signal(false);
   loadingProgress = signal(0);
 
-  ngOnInit(){
+ async ngOnInit(){
 
-    if(this.assetLoader.areCriticalAssetsLoaded()){
-      this.criticalAssetsLoaded.set(true);
-      this.audioService.initializeCriticalAudio();
-    }
-
+    await this.audioService.warmupAudioContext();
 
     setTimeout(() => {
       animateHomeScreen(-50, 50, -50, false)
@@ -115,7 +111,7 @@ export class HomeComponent implements OnInit, OnDestroy{
       await this.assetLoader.preloadAnyGroupOfAssets('critical');
 
       // 3. Initialize audio with critical assets
-      this.audioService.initializeCriticalAudio();
+      await this.audioService.initializeCriticalAudio();
 
       // 4. Start menu music
       this.audioService.playBackgroundMusic();

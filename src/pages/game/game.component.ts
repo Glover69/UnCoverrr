@@ -64,7 +64,7 @@ export class GameComponent implements OnInit, OnDestroy {
 
         if (this.timeRemaining() === 10){
           console.log("10s more!")
-          this.audioService.playSound('countdownEnd');
+          this.audioService.playSoundWithStop('countdownEnd');
         }
 
         if (this.timeRemaining() === 0){
@@ -126,7 +126,7 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   chooseAnswer(option: string){
-    this.audioService.playSound('mouseClick');
+   // this.audioService.playSound('mouseClick');
 
     this.totalAnswered.update(n => n + 1);
 
